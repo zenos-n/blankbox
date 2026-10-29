@@ -21,20 +21,20 @@
 namespace Terminal {
   public Adw.AboutDialog create_about_dialog () {
     var window = new Adw.AboutDialog () {
-      developer_name = "Paulo Queiroz",
+      developer_name = "ZenOS",
       copyright = "© 2022-2026 Paulo Queiroz",
       license_type = Gtk.License.GPL_3_0,
       application_icon = APP_ID,
       application_name = APP_NAME,
       version = VERSION,
-      website = "https://gitlab.gnome.org/raggesilver/blackbox",
-      issue_url = "https://gitlab.gnome.org/raggesilver/blackbox/-/issues",
+      website = "https://github.com/zenos-n/blankbox",
+      issue_url = "https://github.com/zenos-n/blankbox/issues",
       debug_info = get_debug_information (),
       release_notes = """
         <ul>
-          <li>Open folders in Black Box directly from the Files app right-click menu.</li>
-          <li>Fixed missing "command completed" notifications when the context-aware sidebar was disabled.</li>
-          <li>Updated translations, including 9 new languages.</li>
+          <li>Blankbox branding and native GNOME 50 integration.</li>
+          <li>Tab overview, desktop accent colors and an animated cursor trail.</li>
+          <li>Optional recent-use tab switching with Control-key cycling.</li>
         </ul>
       """
     };
@@ -43,14 +43,14 @@ namespace Terminal {
       window.add_css_class ("devel");
     }
 
-    window.add_link (_("Donate"), "https://www.patreon.com/raggesilver");
-    window.add_link (_("Full Changelog"), "https://gitlab.gnome.org/raggesilver/blackbox/-/blob/main/CHANGELOG.md");
+    window.add_link (_("Upstream Black Box"), "https://gitlab.gnome.org/raggesilver/blackbox");
+    window.add_link (_("Full Changelog"), "https://github.com/zenos-n/blankbox/blob/main/FORK.md");
 
     return window;
   }
 
   private string get_debug_information () {
-    var app = "Black Box: %s\n".printf (VERSION);
+    var app = "Blankbox: %s\n".printf (VERSION);
     var backend = "Backend: %s\n".printf (get_gtk_backend ());
     var renderer = "Renderer: %s\n".printf (get_renderer ());
     var os_info = get_os_info ();

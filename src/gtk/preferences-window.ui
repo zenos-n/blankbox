@@ -522,7 +522,7 @@
         <child>
           <object class="AdwPreferencesGroup">
             <property name="title" translatable="yes">Experimental</property>
-            <property name="description" translatable="yes">Features in this section are known to be unstable. Please feel free to test and &lt;a href=&quot;https://gitlab.gnome.org/raggesilver/blackbox/-/issues&quot;&gt;report bugs&lt;/a&gt;.</property>
+            <property name="description" translatable="yes">Features in this section are known to be unstable. Please feel free to test and &lt;a href=&quot;https://github.com/zenos-n/blankbox/issues&quot;&gt;report bugs&lt;/a&gt;.</property>
             <child>
               <object class="AdwSwitchRow" id="use_sixel_switch_row">
                 <property name="title" translatable="yes">Sixel Support</property>
@@ -535,7 +535,7 @@
                 <property name="wrap">True</property>
                 <property name="margin-top">6</property>
                 <property name="use-markup">True</property>
-                <property name="label" translatable="yes">The VTE build you are using does not support Sixel. Sixel is still an experimental feature in VTE. For this reason, most distros do not build VTE with Sixel support. Installing Black Box via Flatpak will enable this feature. &lt;a href=&quot;https://gitlab.gnome.org/raggesilver/blackbox/-/issues/273&quot;&gt;See discussion in issue tracker.&lt;/a&gt;</property>
+                <property name="label" translatable="yes">The VTE build you are using does not support Sixel. Sixel is still an experimental feature in VTE. For this reason, most distros do not build VTE with Sixel support. &lt;a href=&quot;https://gitlab.gnome.org/raggesilver/blackbox/-/issues/273&quot;&gt;See discussion in issue tracker.&lt;/a&gt;</property>
                 <style>
                   <class name="caption" />
                 </style>

@@ -1,11 +1,11 @@
-# Black Box Next
+# Blankbox
 
 This is a development fork of [Black Box](https://gitlab.gnome.org/raggesilver/blackbox),
 starting with performance, reliability, and GNOME 50. Kitty compatibility is
 the longer-term target, not a feature claim for this first version.
 
-Version: **0.15.2.5**. Executable: `blackbox-next`. Desktop application and
-GSettings ID: `com.neg-zero.BlackBoxNext`. Themes and keybindings live in
+Version: **0.15.2.6**. Executable: `blankbox`. Desktop application and
+GSettings ID: `com.neg-zero.Blankbox`. Themes and keybindings live in
 `$XDG_DATA_HOME/blackbox-next/` (normally `~/.local/share/blackbox-next/`).
 The fork can coexist with upstream and does not migrate its settings.
 
@@ -93,7 +93,7 @@ nix flake check
 nix develop
 ```
 
-`nix build .#blackbox-next` selects the named package. The default package runs
+`nix build .#blankbox` selects the named package. The default package runs
 the Meson tests during its build. `nix develop` supplies the same build inputs
 for working on the source with Meson:
 
@@ -121,3 +121,13 @@ boundaries after `--`/`-e`, including spaces, empty strings and shell metacharac
 latency have not been measured; other desktop features still need validation.
 
 See [PERFORMANCE.md](PERFORMANCE.md) for measurements and remaining validation.
+
+## Name compatibility
+
+Blankbox uses `com.neg-zero.Blankbox` for its application, desktop entry and
+GSettings schema IDs. The existing `/com/neg-zero/BlackBoxNext/` preferences
+path and `blackbox-next` user-data directory are retained so installed themes,
+keybindings and preferences survive this rename. Internal upstream resource
+namespaces remain unchanged. The installed `blackbox-next` executable alias and
+hidden `com.neg-zero.BlackBoxNext.desktop` entry keep older launchers working.
+`BLANKBOX_THEMES_DIR` is exported alongside the former `BLACKBOX_THEMES_DIR`.

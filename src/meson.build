@@ -1,4 +1,4 @@
-blackbox_cli = 'blackbox-next'
+blackbox_cli = 'blankbox'
 
 blackbox_sources = files(
   'Application.vala',
@@ -58,6 +58,8 @@ executable(
   dependencies: blackbox_deps,
   install: true,
 )
+
+install_symlink('blackbox-next', pointing_to: 'blankbox', install_dir: get_option('bindir'))
 
 gui_tests = executable(
   'gui-tests',

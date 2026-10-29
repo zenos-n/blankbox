@@ -51,7 +51,7 @@ namespace Terminal.Constants {
 
   public string get_app_schemes_dir () {
     return Path.build_path (
-      Path.DIR_SEPARATOR_S, DATADIR, "blackbox-next", "schemes"
+      Path.DIR_SEPARATOR_S, DATADIR, "blankbox", "schemes"
     );
   }
 }

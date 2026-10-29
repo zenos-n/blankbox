@@ -23,8 +23,8 @@
 }:
 
 stdenv.mkDerivation {
-  pname = "blackbox-next";
-  version = "0.15.2.5";
+  pname = "blankbox";
+  version = "0.15.2.6";
   src = lib.cleanSourceWith {
     src = ./.;
     filter = path: type:
@@ -54,9 +54,10 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "Black Box fork for GNOME 50, with VTE GPU rendering and stability fixes";
+    description = "Blankbox, a native GNOME terminal based on Black Box";
+    homepage = "https://github.com/zenos-n/blankbox";
     license = lib.licenses.gpl3Plus;
     platforms = lib.platforms.linux;
-    mainProgram = "blackbox-next";
+    mainProgram = "blankbox";
   };
 }

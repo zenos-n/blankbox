@@ -3,7 +3,7 @@ test('Benchmark self-check', find_program('python3'),
   args: [files('../tools/benchmark.py'), '--self-test'])
 
 custom_target('test-schemas',
-  input: '../data/com.neg-zero.BlackBoxNext.gschema.xml',
+  input: '../data/com.neg-zero.Blankbox.gschema.xml',
   output: 'gschemas.compiled',
   command: [compile_schemas, '--targetdir', meson.current_build_dir(),
             meson.project_source_root() / 'data'],

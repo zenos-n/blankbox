@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="blackbox-next">
-  <schema id="com.neg-zero.BlackBoxNext" path="/com/neg-zero/BlackBoxNext/">
+<schemalist gettext-domain="blankbox">
+  <schema id="com.neg-zero.Blankbox" path="/com/neg-zero/BlackBoxNext/">
     <key name="window-width" type="u">
       <default>600</default>
       <summary>Window width</summary>
@@ -177,7 +177,7 @@
     </key>
   </schema>
 
-  <schema id="com.neg-zero.BlackBoxNext.terminal.search"
+  <schema id="com.neg-zero.Blankbox.terminal.search"
     path="/com/neg-zero/BlackBoxNext/terminal/search/">
     <key name="wrap-around" type="b">
       <default>true</default>

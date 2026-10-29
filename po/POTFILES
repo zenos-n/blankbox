@@ -1,5 +1,5 @@
-data/com.neg-zero.BlackBoxNext.desktop.in
-data/com.neg-zero.BlackBoxNext.gschema.xml
+data/com.neg-zero.Blankbox.desktop.in
+data/com.neg-zero.Blankbox.gschema.xml
 src/gtk/shortcut-dialog.ui
 src/gtk/shortcut-editor.ui
 src/gtk/shortcut-row.ui

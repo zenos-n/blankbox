@@ -25,7 +25,7 @@ If possible, please attach a video or screenshot of the error
 <!-- Please share the following -->
 
 - Wayland or X11? -
-- Are you running Black Box via Flatpak? -
-- What version of Black Box? -
+- Are you running Blankbox via Flatpak? -
+- What version of Blankbox? -
 - Have you updated your Flatpak dependencies recently? -
 - Are you running Wayland + Nvidia? -

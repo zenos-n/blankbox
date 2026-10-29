@@ -1,10 +1,10 @@
 subdir('icons')
 
-install_subdir('schemes', install_dir: join_paths(get_option('datadir'), 'blackbox-next'))
+install_subdir('schemes', install_dir: join_paths(get_option('datadir'), 'blankbox'))
 
 desktop_file = i18n.merge_file(
-  input: 'com.neg-zero.BlackBoxNext.desktop.in',
-  output: 'com.neg-zero.BlackBoxNext.desktop',
+  input: 'com.neg-zero.Blankbox.desktop.in',
+  output: 'com.neg-zero.Blankbox.desktop',
   type: 'desktop',
   po_dir: '../po',
   install: true,
@@ -17,8 +17,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-  input: 'com.neg-zero.BlackBoxNext.metainfo.xml.in',
-  output: 'com.neg-zero.BlackBoxNext.metainfo.xml',
+  input: 'com.neg-zero.Blankbox.metainfo.xml.in',
+  output: 'com.neg-zero.Blankbox.metainfo.xml',
   po_dir: '../po',
   install: true,
   install_dir: join_paths(get_option('datadir'), 'metainfo'),
@@ -39,13 +39,13 @@ endif
 # and realizes they have no access to the extension.
 if host_machine.system() == 'linux'
   install_data(
-    'nautilus/open-blackbox-next.py',
+    'nautilus/open-blankbox.py',
     install_dir: join_paths(get_option('datadir'), 'nautilus-python/extensions'),
   )
 endif
 
 install_data(
-  'com.neg-zero.BlackBoxNext.gschema.xml',
+  'com.neg-zero.Blankbox.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas'),
 )
 
@@ -57,3 +57,7 @@ if compile_schemas.found()
     args: ['--strict', '--dry-run', meson.current_source_dir()],
   )
 endif
+
+# Existing docks and terminal preferences may still refer to the former ID.
+install_data('com.neg-zero.BlackBoxNext.desktop',
+  install_dir: join_paths(get_option('datadir'), 'applications'))

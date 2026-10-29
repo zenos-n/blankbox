@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2022 Paulo Queiroz -->
 <component type="desktop">
-  <id>com.neg-zero.BlackBoxNext</id>
+  <id>com.neg-zero.Blankbox</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
 
-  <name>Black Box Next</name>
+  <name>Blankbox</name>
   <summary>A GNOME 50 terminal based on Black Box</summary>
 
-  <developer_name>Paulo Queiroz</developer_name>
-  <developer id="com.raggesilver">
-    <name>Paulo Queiroz</name>
+  <developer_name>ZenOS</developer_name>
+  <developer id="com.neg-zero">
+    <name>ZenOS</name>
   </developer>
 
   <recommends>
@@ -21,10 +21,10 @@
 
   <description>
     <p>
-      Black Box is a native terminal emulator for GNOME that offers superb
+      Blankbox is a native terminal emulator for GNOME that offers superb
       theming options.
     </p>
-    <p>With Black Box you can:</p>
+    <p>With Blankbox you can:</p>
     <ul>
       <li>Set colors schemes and integrate them with the rest of the window</li>
       <li>Customize font and size</li>
@@ -48,7 +48,7 @@
     </screenshot>
   </screenshots>
 
-  <launchable type="desktop-id">com.neg-zero.BlackBoxNext.desktop</launchable>
+  <launchable type="desktop-id">com.neg-zero.Blankbox.desktop</launchable>
 
   <categories>
     <category>Utility</category>
@@ -291,7 +291,7 @@
           <li>Users can now set a terminal color scheme for dark style and another for light style</li>
           <li>Black Box now uses the new libadwaita about window</li>
           <li>New themes included with Black Box: one-dark, pencil-dark, pencil-light, tomorrow, and tommorrow-night</li>
-          <li>Black Box will also load themes from `~/.var/app/com.neg-zero.BlackBoxNext/schemes`</li>
+          <li>Black Box will also load themes from `~/.var/app/com.neg-zero.Blankbox/schemes`</li>
           <li>You can customize which and how your shell is spawned in Black Box</li>
         </ul>
         <p>Deprecations:</p>
@@ -425,12 +425,9 @@
     </release>
   </releases>
 
-  <url type="homepage">https://gitlab.gnome.org/raggesilver/blackbox</url>
-  <url type="bugtracker">https://gitlab.gnome.org/raggesilver/blackbox/issues</url>
-  <url type="donation">https://www.patreon.com/raggesilver</url>
-  <url type="help">https://gitlab.gnome.org/raggesilver/blackbox/issues</url>
-  <url type="vcs-browser">https://gitlab.gnome.org/raggesilver/blackbox</url>
-  <url type="translate">https://hosted.weblate.org/projects/blackbox/</url>
-  <url type="contribute">https://gitlab.gnome.org/raggesilver/blackbox/-/blob/main/CONTRIBUTING.md</url>
-  <update_contact>pvaqueiroz@gmail.com</update_contact>
+  <url type="homepage">https://github.com/zenos-n/blankbox</url>
+  <url type="bugtracker">https://github.com/zenos-n/blankbox/issues</url>
+  <url type="help">https://github.com/zenos-n/blankbox/issues</url>
+  <url type="vcs-browser">https://github.com/zenos-n/blankbox</url>
+  <url type="contribute">https://github.com/zenos-n/blankbox/blob/main/CONTRIBUTING.md</url>
 </component>
