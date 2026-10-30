@@ -465,7 +465,10 @@ public class Terminal.Terminal : Vte.Terminal {
       this.stop_cursor_trail();
       this.queue_draw();
     });
-    var kpcontroller = new Gtk.EventControllerKey();
+    var kpcontroller = new Gtk.EventControllerKey() {
+      name = "terminal-input",
+      propagation_phase = Gtk.PropagationPhase.CAPTURE,
+    };
     kpcontroller.key_pressed.connect(this.on_key_pressed);
     this.add_controller(kpcontroller);
 
@@ -659,6 +662,15 @@ public class Terminal.Terminal : Vte.Terminal {
     uint keycode,
     Gdk.ModifierType state
   ) {
+    var modifiers = state & Gtk.accelerator_get_default_mod_mask();
+    if ((keyval == Gdk.Key.Return || keyval == Gdk.Key.KP_Enter) &&
+        modifiers == Gdk.ModifierType.SHIFT_MASK) {
+      // VTE otherwise sends CR, making Shift+Enter indistinguishable from Enter.
+      // LF is the traditional Ctrl+J sequence understood by terminal composers.
+      this.feed_child("\n".data);
+      return true;
+    }
+
     if ((state & Gdk.ModifierType.CONTROL_MASK) == 0) {
       return false;
     }

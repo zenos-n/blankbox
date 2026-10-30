@@ -2,6 +2,45 @@
 
 Terminal.Application test_application;
 
+void test_shift_enter_newline() throws Error {
+  var directory = DirUtils.make_tmp("blankbox-keyboard-XXXXXX");
+  var output = directory + "/input";
+  var ready = directory + "/ready";
+  var script = "stty -echo -icrnl; touch " + Shell.quote(ready) +
+    "; head -c 1 > " + Shell.quote(output);
+  var window = new Terminal.Window(test_application, null, "/", true);
+  var terminal = new Terminal.Terminal(window, "sh -c " + Shell.quote(script), "/");
+  int64 deadline = get_monotonic_time() + 5 * TimeSpan.SECOND;
+  while (!FileUtils.test(ready, FileTest.EXISTS) && get_monotonic_time() < deadline)
+    wait_frames(10);
+  assert(FileUtils.test(ready, FileTest.EXISTS));
+  Gtk.EventControllerKey? keys = null;
+  var controllers = terminal.observe_controllers();
+  for (uint i = 0; i < controllers.get_n_items(); i++) {
+    var controller = controllers.get_item(i) as Gtk.EventControllerKey;
+    if (controller != null && controller.name == "terminal-input") keys = controller;
+  }
+  assert(keys != null && keys.propagation_phase == Gtk.PropagationPhase.CAPTURE);
+  assert(!keys.key_pressed(Gdk.Key.Return, 0, 0));
+  assert(!keys.key_pressed(Gdk.Key.Return, 0,
+    Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK));
+  assert(keys.key_pressed(Gdk.Key.Return, 0, Gdk.ModifierType.SHIFT_MASK));
+  string bytes = "";
+  while (get_monotonic_time() < deadline) {
+    if (FileUtils.test(output, FileTest.EXISTS)) {
+      FileUtils.get_contents(output, out bytes);
+      if (bytes.length > 0) break;
+    }
+    wait_frames(10);
+  }
+  assert(bytes == "\n");
+  terminal.on_before_close();
+  window.destroy();
+  FileUtils.unlink(ready);
+  FileUtils.unlink(output);
+  DirUtils.remove(directory);
+}
+
 void test_search_keeps_url_matches() throws Error {
   var app = test_application;
   var window = new Terminal.Window(app, null, "/", true);
@@ -429,6 +468,9 @@ int main(string[] args) {
     Test.add_func("/tabs/overview", test_tab_overview);
     Test.add_func("/tabs/floating-overview", test_floating_tab_overview);
     Test.add_func("/tabs/recent-order", test_recent_tab_order);
+    Test.add_func("/keyboard/shift-enter-newline", () => {
+      try { test_shift_enter_newline(); } catch (Error e) { error("%s", e.message); }
+    });
     Test.add_func("/search/keeps-url-matches", () => {
     try { test_search_keeps_url_matches(); }
     catch (Error e) { error("%s", e.message); }

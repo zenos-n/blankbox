@@ -1,7 +1,7 @@
 project(
   'blankbox',
   ['c', 'vala'],
-  version: '0.15.2.6',
+  version: '0.15.2.7',
   meson_version: '>= 0.61.0',
   default_options: [
     'warning_level=2',
