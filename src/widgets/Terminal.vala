@@ -691,6 +691,12 @@ public class Terminal.Terminal : Vte.Terminal {
       return true;
     }
 
+    if (keyval == Gdk.Key.BackSpace && modifiers == Gdk.ModifierType.CONTROL_MASK) {
+      // Ctrl+W is the conventional terminal backward-word-delete sequence.
+      this.feed_child("\x17".data);
+      return true;
+    }
+
     if ((state & Gdk.ModifierType.CONTROL_MASK) == 0) {
       return false;
     }

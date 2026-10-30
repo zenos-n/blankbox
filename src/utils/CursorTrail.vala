@@ -34,7 +34,7 @@ internal class Terminal.CursorTrail : Object {
     var from = active(now) ? tail(now) : target.get_center();
     float dx = (next.origin.x - target.origin.x) / float.max(1, cell_width);
     float dy = (next.origin.y - target.origin.y) / float.max(1, cell_height);
-    bool animate = active(now) || dx * dx + dy * dy >= 4;
+    bool animate = active(now) || dx * dx + dy * dy >= 1;
     target = next;
     origin = from;
     started_at = animate ? now : 0;

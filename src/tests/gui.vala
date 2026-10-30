@@ -2,12 +2,12 @@
 
 Terminal.Application test_application;
 
-void test_shift_enter_newline() throws Error {
+void test_modified_key_input() throws Error {
   var directory = DirUtils.make_tmp("blankbox-keyboard-XXXXXX");
   var output = directory + "/input";
   var ready = directory + "/ready";
-  var script = "stty -echo -icrnl; touch " + Shell.quote(ready) +
-    "; head -c 1 > " + Shell.quote(output);
+  var script = "stty raw -echo; touch " + Shell.quote(ready) +
+    "; head -c 2 > " + Shell.quote(output);
   var window = new Terminal.Window(test_application, null, "/", true);
   var terminal = new Terminal.Terminal(window, "sh -c " + Shell.quote(script), "/");
   int64 deadline = get_monotonic_time() + 5 * TimeSpan.SECOND;
@@ -24,16 +24,20 @@ void test_shift_enter_newline() throws Error {
   assert(!keys.key_pressed(Gdk.Key.Return, 0, 0));
   assert(!keys.key_pressed(Gdk.Key.Return, 0,
     Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK));
+  assert(!keys.key_pressed(Gdk.Key.BackSpace, 0, 0));
+  assert(!keys.key_pressed(Gdk.Key.BackSpace, 0,
+    Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK));
   assert(keys.key_pressed(Gdk.Key.Return, 0, Gdk.ModifierType.SHIFT_MASK));
+  assert(keys.key_pressed(Gdk.Key.BackSpace, 0, Gdk.ModifierType.CONTROL_MASK));
   string bytes = "";
   while (get_monotonic_time() < deadline) {
     if (FileUtils.test(output, FileTest.EXISTS)) {
       FileUtils.get_contents(output, out bytes);
-      if (bytes.length > 0) break;
+      if (bytes.length == 2) break;
     }
     wait_frames(10);
   }
-  assert(bytes == "\n");
+  assert(bytes == "\n\x17");
   terminal.on_before_close();
   window.destroy();
   FileUtils.unlink(ready);
@@ -112,8 +116,8 @@ void test_cursor_trail_lifecycle() {
   var trail = new Terminal.CursorTrail();
   int64 start = TimeSpan.SECOND;
   assert(!trail.move(Graphene.Rect().init(0, 0, 10, 20), start, 10, 20));
-  assert(!trail.move(Graphene.Rect().init(10, 0, 10, 20), start, 10, 20));
-  assert(!trail.active(start));
+  assert(trail.move(Graphene.Rect().init(10, 0, 10, 20), start, 10, 20));
+  assert(trail.active(start));
   assert(trail.move(Graphene.Rect().init(110, 0, 10, 20), start, 10, 20));
   assert(trail.active(start));
   int64 halfway = start + Terminal.CursorTrail.DURATION / 2;
@@ -156,10 +160,30 @@ void test_cursor_shapes() {
     assert(!trail.move(shape, now, block.size.width, block.size.height));
     var next = shape;
     next.origin.x += block.size.width;
-    assert(!trail.move(next, now, block.size.width, block.size.height));
+    assert(trail.move(next, now, block.size.width, block.size.height));
+    // A single Backspace must animate even after the previous trail settles.
+    now += Terminal.CursorTrail.DURATION;
+    assert(trail.move(shape, now, block.size.width, block.size.height));
+    assert(trail.tail(now).equal(next.get_center()));
     next.origin.y += 3 * block.size.height;
     assert(trail.move(next, now, block.size.width, block.size.height));
     assert(trail.target.equal(next));
+  }
+  terminal.grab_focus();
+  foreach (var shape in new Vte.CursorShape[] {
+    Vte.CursorShape.BLOCK, Vte.CursorShape.IBEAM, Vte.CursorShape.UNDERLINE
+  }) {
+    terminal.set_cursor_shape(shape);
+    terminal.feed("\x1b[4;10H".data);
+    wait_frames(250);
+    Graphene.Rect before, after;
+    assert(terminal.get_cursor_bounds(out before));
+    terminal.feed("\b \b".data);
+    wait_frames(40);
+    assert(terminal.get_cursor_bounds(out after));
+    assert(before.origin.x - after.origin.x == terminal.get_char_width());
+    if (terminal.has_focus && Gtk.Settings.get_default().gtk_enable_animations)
+      assert(terminal.cursor_trail_animating);
   }
   terminal.on_before_close();
   window.destroy();
@@ -506,8 +530,8 @@ int main(string[] args) {
     Test.add_func("/tabs/overview", test_tab_overview);
     Test.add_func("/tabs/floating-overview", test_floating_tab_overview);
     Test.add_func("/tabs/recent-order", test_recent_tab_order);
-    Test.add_func("/keyboard/shift-enter-newline", () => {
-      try { test_shift_enter_newline(); } catch (Error e) { error("%s", e.message); }
+    Test.add_func("/keyboard/modified-key-input", () => {
+      try { test_modified_key_input(); } catch (Error e) { error("%s", e.message); }
     });
     Test.add_func("/search/keeps-url-matches", () => {
     try { test_search_keeps_url_matches(); }
