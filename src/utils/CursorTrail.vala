@@ -23,7 +23,7 @@ internal class Terminal.CursorTrail : Object {
                                  center.y + (origin.y - center.y) * weight);
   }
 
-  internal bool move(Graphene.Rect next, int64 now) {
+  internal bool move(Graphene.Rect next, int64 now, float cell_width, float cell_height) {
     if (!initialized) {
       target = next;
       initialized = true;
@@ -32,8 +32,8 @@ internal class Terminal.CursorTrail : Object {
     if (target.equal(next)) return false;
 
     var from = active(now) ? tail(now) : target.get_center();
-    float dx = (next.origin.x - target.origin.x) / float.max(1, next.size.width);
-    float dy = (next.origin.y - target.origin.y) / float.max(1, next.size.height);
+    float dx = (next.origin.x - target.origin.x) / float.max(1, cell_width);
+    float dy = (next.origin.y - target.origin.y) / float.max(1, cell_height);
     bool animate = active(now) || dx * dx + dy * dy >= 4;
     target = next;
     origin = from;

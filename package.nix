@@ -24,7 +24,7 @@
 
 stdenv.mkDerivation {
   pname = "blankbox";
-  version = "0.15.2.7";
+  version = "0.15.2.8";
   src = lib.cleanSourceWith {
     src = ./.;
     filter = path: type:

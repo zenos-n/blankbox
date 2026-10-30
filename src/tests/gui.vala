@@ -111,21 +111,58 @@ void test_command_cache_lifetime() {
 void test_cursor_trail_lifecycle() {
   var trail = new Terminal.CursorTrail();
   int64 start = TimeSpan.SECOND;
-  assert(!trail.move(Graphene.Rect().init(0, 0, 10, 20), start));
-  assert(!trail.move(Graphene.Rect().init(10, 0, 10, 20), start));
+  assert(!trail.move(Graphene.Rect().init(0, 0, 10, 20), start, 10, 20));
+  assert(!trail.move(Graphene.Rect().init(10, 0, 10, 20), start, 10, 20));
   assert(!trail.active(start));
-  assert(trail.move(Graphene.Rect().init(110, 0, 10, 20), start));
+  assert(trail.move(Graphene.Rect().init(110, 0, 10, 20), start, 10, 20));
   assert(trail.active(start));
   int64 halfway = start + Terminal.CursorTrail.DURATION / 2;
   var before = trail.tail(halfway);
   assert(before.x > 15 && before.x < 115);
-  assert(trail.move(Graphene.Rect().init(210, 0, 10, 20), halfway));
+  assert(trail.move(Graphene.Rect().init(210, 0, 10, 20), halfway, 10, 20));
   var after = trail.tail(halfway);
   assert((before.x - after.x).abs() < 0.001f);
   assert(!trail.active(halfway + Terminal.CursorTrail.DURATION));
   trail.reset();
   assert(!trail.active(halfway));
-  assert(!trail.move(Graphene.Rect().init(0, 100, 10, 20), halfway));
+  assert(!trail.move(Graphene.Rect().init(0, 100, 10, 20), halfway, 10, 20));
+}
+
+void test_cursor_shapes() {
+  var window = new Terminal.Window(test_application, null, "/", true);
+  var terminal = new Terminal.Terminal(window, "true", "/");
+  window.content = terminal;
+  window.set_default_size(600, 300);
+  window.present();
+  wait_frames(100);
+  terminal.feed("\x1b[4;10H".data);
+  wait_frames(50);
+  Graphene.Rect block, beam, underline;
+  terminal.set_cursor_shape(Vte.CursorShape.BLOCK);
+  assert(terminal.get_cursor_bounds(out block));
+  terminal.set_cursor_shape(Vte.CursorShape.IBEAM);
+  assert(terminal.get_cursor_bounds(out beam));
+  terminal.set_cursor_shape(Vte.CursorShape.UNDERLINE);
+  assert(terminal.get_cursor_bounds(out underline));
+  assert(beam.size.width < block.size.width);
+  assert(beam.origin.x == block.origin.x);
+  assert(beam.size.height <= block.size.height);
+  assert(underline.size.height < block.size.height);
+  assert(underline.origin.y > block.origin.y);
+  assert(underline.size.width == block.size.width);
+  foreach (var shape in new Graphene.Rect[] { block, beam, underline }) {
+    var trail = new Terminal.CursorTrail();
+    int64 now = TimeSpan.SECOND;
+    assert(!trail.move(shape, now, block.size.width, block.size.height));
+    var next = shape;
+    next.origin.x += block.size.width;
+    assert(!trail.move(next, now, block.size.width, block.size.height));
+    next.origin.y += 3 * block.size.height;
+    assert(trail.move(next, now, block.size.width, block.size.height));
+    assert(trail.target.equal(next));
+  }
+  terminal.on_before_close();
+  window.destroy();
 }
 
 void wait_frames(uint milliseconds) {
@@ -463,6 +500,7 @@ int main(string[] args) {
       try { test_application_styles(); }
       catch (Error e) { error("%s", e.message); }
     });
+    Test.add_func("/cursor/shapes", test_cursor_shapes);
     Test.add_func("/cursor/geometry-and-animation", test_cursor_geometry_and_animation);
     Test.add_func("/cursor/color-preference", test_cursor_color_preference);
     Test.add_func("/tabs/overview", test_tab_overview);

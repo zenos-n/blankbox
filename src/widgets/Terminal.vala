@@ -181,6 +181,22 @@ public class Terminal.Terminal : Vte.Terminal {
                       + column * this.get_char_width();
     bounds.size.width = this.get_char_width();
     bounds.size.height = this.get_char_height();
+    double aspect;
+    Gtk.Settings.get_default().get("gtk-cursor-aspect-ratio", out aspect);
+    float glyph_height = (float) Math.round(bounds.size.height / this.cell_height_scale);
+    float thickness = float.max(1, (float) Math.round(glyph_height * aspect));
+    float padding_y = (bounds.size.height - glyph_height) / 2;
+    switch (this.get_cursor_shape()) {
+      case Vte.CursorShape.IBEAM:
+        bounds.origin.y += padding_y;
+        bounds.size.width = float.min(bounds.size.width, thickness);
+        bounds.size.height = glyph_height;
+        break;
+      case Vte.CursorShape.UNDERLINE:
+        bounds.origin.y += bounds.size.height - padding_y - thickness;
+        bounds.size.height = float.min(glyph_height, thickness);
+        break;
+    }
     return bounds.origin.y >= 0 && bounds.origin.y < this.get_height();
   }
 
@@ -195,7 +211,7 @@ public class Terminal.Terminal : Vte.Terminal {
     }
 
     int64 now = get_monotonic_time();
-    if (this.cursor_trail.move(bounds, now) && this.cursor_trail_tick == 0) {
+    if (this.cursor_trail.move(bounds, now, this.get_char_width(), this.get_char_height()) && this.cursor_trail_tick == 0) {
       this.cursor_trail_tick = this.add_tick_callback((widget, clock) => {
         bool active = this.cursor_trail.active(clock.get_frame_time());
         this.queue_draw();
@@ -460,6 +476,10 @@ public class Terminal.Terminal : Vte.Terminal {
   private void connect_signals() {
     this.unmap.connect(this.stop_cursor_trail);
     this.char_size_changed.connect(this.stop_cursor_trail);
+    this.notify["cursor-shape"].connect(() => {
+      this.stop_cursor_trail();
+      this.queue_draw();
+    });
     this.vadjustment.value_changed.connect(this.stop_cursor_trail);
     this.settings.notify["cursor-trail"].connect(() => {
       this.stop_cursor_trail();
