@@ -148,6 +148,8 @@ void test_cursor_shapes() {
   assert(terminal.get_cursor_bounds(out beam));
   terminal.set_cursor_shape(Vte.CursorShape.UNDERLINE);
   assert(terminal.get_cursor_bounds(out underline));
+  // CSS padding belongs to GTK's outer snapshot transform, not the cell offset.
+  assert(beam.origin.x == 9 * terminal.get_char_width());
   assert(beam.size.width < block.size.width);
   assert(beam.origin.x == block.origin.x);
   assert(beam.size.height <= block.size.height);
@@ -178,6 +180,7 @@ void test_cursor_shapes() {
     wait_frames(250);
     Graphene.Rect before, after;
     assert(terminal.get_cursor_bounds(out before));
+    terminal.cursor_trail_key(Gdk.Key.BackSpace, 0);
     terminal.feed("\b \b".data);
     wait_frames(40);
     assert(terminal.get_cursor_bounds(out after));
@@ -185,6 +188,21 @@ void test_cursor_shapes() {
     if (terminal.has_focus && Gtk.Settings.get_default().gtk_enable_animations)
       assert(terminal.cursor_trail_animating);
   }
+  terminal.set_cursor_shape(Vte.CursorShape.IBEAM);
+  wait_frames(250);
+  terminal.cursor_trail_key(Gdk.Key.a, 0);
+  terminal.feed("a".data);
+  wait_frames(40);
+  assert(!terminal.cursor_trail_animating);
+  terminal.cursor_trail_key(Gdk.Key.Left, 0);
+  terminal.feed("\x1b[D".data);
+  wait_frames(40);
+  if (terminal.has_focus && Gtk.Settings.get_default().gtk_enable_animations)
+    assert(terminal.cursor_trail_animating);
+  terminal.cursor_trail_key(Gdk.Key.b, 0);
+  terminal.feed("b".data);
+  wait_frames(40);
+  assert(!terminal.cursor_trail_animating);
   terminal.on_before_close();
   window.destroy();
 }
@@ -222,6 +240,7 @@ void test_cursor_geometry_and_animation() {
 
   terminal.feed("\x1b[H".data);
   wait_frames(250);
+  terminal.cursor_trail_key(Gdk.Key.Right, 0);
   terminal.feed("\x1b[8;35H".data);
   wait_frames(40);
   if (terminal.has_focus && Gtk.Settings.get_default().gtk_enable_animations) {

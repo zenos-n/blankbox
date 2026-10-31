@@ -31,7 +31,10 @@ public class Terminal.Application : Adw.Application {
     Object(
       application_id: APP_ID,
       resource_base_path: "/com/raggesilver/BlackBox",
-      flags: ApplicationFlags.HANDLES_COMMAND_LINE
+      // Allow a fresh build alongside older terminals without closing their sessions.
+      flags: ApplicationFlags.HANDLES_COMMAND_LINE |
+             (Environment.get_variable("BLANKBOX_NEW_PROCESS") == "1"
+              ? ApplicationFlags.NON_UNIQUE : ApplicationFlags.FLAGS_NONE)
     );
 
     Intl.setlocale(LocaleCategory.ALL, "");

@@ -86,6 +86,7 @@ public class Terminal.Terminal : Vte.Terminal {
   private uint attention_timer = 0;
   private CursorTrail cursor_trail = new CursorTrail();
   private uint cursor_trail_tick = 0;
+  private bool cursor_motion_pending = false;
   internal bool cursor_trail_animating { get { return this.cursor_trail_tick != 0; } }
 
   // FIXME: either get rid of this field, or stop creating a local copy of
@@ -154,12 +155,42 @@ public class Terminal.Terminal : Vte.Terminal {
 
   // Methods ===================================================================
 
-  private void stop_cursor_trail() {
+  private void cancel_cursor_trail_animation() {
     if (this.cursor_trail_tick != 0) {
       this.remove_tick_callback(this.cursor_trail_tick);
       this.cursor_trail_tick = 0;
     }
+    this.cursor_trail.cancel();
+  }
+
+  private void stop_cursor_trail() {
+    this.cancel_cursor_trail_animation();
     this.cursor_trail.reset();
+    this.cursor_motion_pending = false;
+  }
+
+  internal void cursor_trail_key(uint keyval, Gdk.ModifierType state) {
+    switch (keyval) {
+      case Gdk.Key.Left: case Gdk.Key.Right:
+      case Gdk.Key.Up: case Gdk.Key.Down:
+      case Gdk.Key.Home: case Gdk.Key.End:
+      case Gdk.Key.KP_Left: case Gdk.Key.KP_Right:
+      case Gdk.Key.KP_Up: case Gdk.Key.KP_Down:
+      case Gdk.Key.KP_Home: case Gdk.Key.KP_End:
+      case Gdk.Key.BackSpace: case Gdk.Key.Delete:
+        this.cursor_motion_pending = true;
+        return;
+    }
+    bool control_motion = (state & Gdk.ModifierType.CONTROL_MASK) != 0 &&
+      keyval in new uint[] { Gdk.Key.a, Gdk.Key.e, Gdk.Key.b, Gdk.Key.f,
+                            Gdk.Key.h, Gdk.Key.w, Gdk.Key.u, Gdk.Key.p, Gdk.Key.n };
+    bool alt_motion = (state & Gdk.ModifierType.ALT_MASK) != 0 &&
+      keyval in new uint[] { Gdk.Key.b, Gdk.Key.f };
+    this.cursor_motion_pending = control_motion || alt_motion;
+    if (!this.cursor_motion_pending) {
+      this.cancel_cursor_trail_animation();
+      this.queue_draw();
+    }
   }
 
   // The shipped Vala binding incorrectly copies this output argument.
@@ -177,8 +208,8 @@ public class Terminal.Terminal : Vte.Terminal {
     if (!get_text_extents(text, caret, caret, out bounds)) return false;
     long column;
     this.get_cursor_position(out column, null);
-    bounds.origin.x = this.get_style_context().get_padding().left
-                      + column * this.get_char_width();
+    // GTK4 has already applied CSS padding to the snapshot coordinate space.
+    bounds.origin.x = column * this.get_char_width();
     bounds.size.width = this.get_char_width();
     bounds.size.height = this.get_char_height();
     double aspect;
@@ -211,7 +242,12 @@ public class Terminal.Terminal : Vte.Terminal {
     }
 
     int64 now = get_monotonic_time();
-    if (this.cursor_trail.move(bounds, now, this.get_char_width(), this.get_char_height()) && this.cursor_trail_tick == 0) {
+    bool changed = !this.cursor_trail.target.equal(bounds);
+    if (changed && !this.cursor_motion_pending) this.cancel_cursor_trail_animation();
+    bool animate = this.cursor_trail.move(bounds, now, this.get_char_width(),
+                                         this.get_char_height(), this.cursor_motion_pending);
+    if (changed) this.cursor_motion_pending = false;
+    if (animate && this.cursor_trail_tick == 0) {
       this.cursor_trail_tick = this.add_tick_callback((widget, clock) => {
         bool active = this.cursor_trail.active(clock.get_frame_time());
         this.queue_draw();
@@ -496,6 +532,7 @@ public class Terminal.Terminal : Vte.Terminal {
       button = Gdk.BUTTON_PRIMARY,
     };
     left_click_controller.pressed.connect((gesture, n_clicked, x, y) => {
+      this.cursor_motion_pending = true;
       var event = gesture.get_current_event();
       var pattern = this.check_match_at(x, y, null) ?? this.hyperlink_hover_uri;
 
@@ -682,6 +719,7 @@ public class Terminal.Terminal : Vte.Terminal {
     uint keycode,
     Gdk.ModifierType state
   ) {
+    this.cursor_trail_key(keyval, state);
     var modifiers = state & Gtk.accelerator_get_default_mod_mask();
     if ((keyval == Gdk.Key.Return || keyval == Gdk.Key.KP_Enter) &&
         modifiers == Gdk.ModifierType.SHIFT_MASK) {

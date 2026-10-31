@@ -4,7 +4,7 @@ This is a development fork of [Black Box](https://gitlab.gnome.org/raggesilver/b
 starting with performance, reliability, and GNOME 50. Kitty compatibility is
 the longer-term target, not a feature claim for this first version.
 
-Version: **0.15.2.6**. Executable: `blankbox`. Desktop application and
+Version: **0.15.2.11**. Executable: `blankbox`. Desktop application and
 GSettings ID: `com.neg-zero.Blankbox`. Themes and keybindings live in
 `$XDG_DATA_HOME/blackbox-next/` (normally `~/.local/share/blackbox-next/`).
 The fork can coexist with upstream and does not migrate its settings.
@@ -131,3 +131,13 @@ keybindings and preferences survive this rename. Internal upstream resource
 namespaces remain unchanged. The installed `blackbox-next` executable alias and
 hidden `com.neg-zero.BlackBoxNext.desktop` entry keep older launchers working.
 `BLANKBOX_THEMES_DIR` is exported alongside the former `BLACKBOX_THEMES_DIR`.
+
+## Cursor trail corrections
+
+GTK4 already applies CSS padding to the terminal snapshot. Trail coordinates
+use VTE content coordinates, without adding that padding again. I-beam and
+underline trails keep their full shape and attach to the visible caret.
+Only navigation/backspace input authorizes the next cursor movement to animate;
+ordinary typing and pasted/output characters do not animate.
+For upgrade validation alongside an older open process, launch with
+`BLANKBOX_NEW_PROCESS=1 blankbox`. Existing windows keep their binary until closed.

@@ -23,7 +23,7 @@ internal class Terminal.CursorTrail : Object {
                                  center.y + (origin.y - center.y) * weight);
   }
 
-  internal bool move(Graphene.Rect next, int64 now, float cell_width, float cell_height) {
+  internal bool move(Graphene.Rect next, int64 now, float cell_width, float cell_height, bool allow_animation = true) {
     if (!initialized) {
       target = next;
       initialized = true;
@@ -34,15 +34,19 @@ internal class Terminal.CursorTrail : Object {
     var from = active(now) ? tail(now) : target.get_center();
     float dx = (next.origin.x - target.origin.x) / float.max(1, cell_width);
     float dy = (next.origin.y - target.origin.y) / float.max(1, cell_height);
-    bool animate = active(now) || dx * dx + dy * dy >= 1;
+    bool animate = allow_animation && (active(now) || dx * dx + dy * dy >= 1);
     target = next;
     origin = from;
     started_at = animate ? now : 0;
     return animate;
   }
 
-  internal void reset() {
+  internal void cancel() {
     started_at = 0;
+  }
+
+  internal void reset() {
+    cancel();
     initialized = false;
   }
 }
