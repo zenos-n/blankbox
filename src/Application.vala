@@ -27,14 +27,30 @@ public class Terminal.Application : Adw.Application {
     //  { "quit", on_app_quit },
   };
 
+  private static ApplicationFlags startup_flags() {
+    var result = ApplicationFlags.HANDLES_COMMAND_LINE;
+    try {
+      var bus = Bus.get_sync(BusType.SESSION);
+      var reply = bus.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus",
+        "org.freedesktop.DBus", "GetConnectionUnixProcessID", new Variant("(s)", APP_ID),
+        new VariantType("(u)"), DBusCallFlags.NONE, 1000, null);
+      uint owner;
+      reply.get("(u)", out owner);
+      // An older single-instance owner must not silently run an upgraded launch.
+      if (FileUtils.read_link("/proc/%u/exe".printf(owner)) !=
+          FileUtils.read_link("/proc/self/exe"))
+        result |= ApplicationFlags.NON_UNIQUE;
+    } catch (Error e) {
+      // No running owner (or no session bus): normal application registration.
+    }
+    return result;
+  }
+
   public Application () {
     Object(
       application_id: APP_ID,
       resource_base_path: "/com/raggesilver/BlackBox",
-      // Allow a fresh build alongside older terminals without closing their sessions.
-      flags: ApplicationFlags.HANDLES_COMMAND_LINE |
-             (Environment.get_variable("BLANKBOX_NEW_PROCESS") == "1"
-              ? ApplicationFlags.NON_UNIQUE : ApplicationFlags.FLAGS_NONE)
+      flags: startup_flags()
     );
 
     Intl.setlocale(LocaleCategory.ALL, "");

@@ -4,7 +4,7 @@ This is a development fork of [Black Box](https://gitlab.gnome.org/raggesilver/b
 starting with performance, reliability, and GNOME 50. Kitty compatibility is
 the longer-term target, not a feature claim for this first version.
 
-Version: **0.15.2.11**. Executable: `blankbox`. Desktop application and
+Version: **0.15.2.12**. Executable: `blankbox`. Desktop application and
 GSettings ID: `com.neg-zero.Blankbox`. Themes and keybindings live in
 `$XDG_DATA_HOME/blackbox-next/` (normally `~/.local/share/blackbox-next/`).
 The fork can coexist with upstream and does not migrate its settings.
@@ -139,5 +139,5 @@ use VTE content coordinates, without adding that padding again. I-beam and
 underline trails keep their full shape and attach to the visible caret.
 Only navigation/backspace input authorizes the next cursor movement to animate;
 ordinary typing and pasted/output characters do not animate.
-For upgrade validation alongside an older open process, launch with
-`BLANKBOX_NEW_PROCESS=1 blankbox`. Existing windows keep their binary until closed.
+Upgraded launches detect an older single-instance owner and open in a fresh
+process. Existing windows keep their binary and sessions until closed.
